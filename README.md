@@ -6,7 +6,7 @@ I deduce the State Monad.
 Starting with a mutable Stack
 I go to a immutable, functional Stack: s => (s, a)
 Then I wrap the function into a case class Stack
-and make if a Monad. Then I abstract the Stack to State
+and make it a Monad. Then I abstract the Stack to State
 and implement the convenience functions (pure, get, set, modify
 and inspect) that Cats also provides. In the last example
 I delete my own implemention of State and import cats.data.State
