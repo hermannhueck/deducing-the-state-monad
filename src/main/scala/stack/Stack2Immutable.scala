@@ -3,7 +3,7 @@
   http://learnyouahaskell.com/for-a-few-monads-more#state
  */
 
-package stack_with_state
+package stack
 
 /*
   Immutable stack implementation, version 1

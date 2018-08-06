@@ -3,57 +3,54 @@
   http://learnyouahaskell.com/for-a-few-monads-more#state
  */
 
-package stack_with_state
+package stack
 
 import cats.Monad
 
 import scala.util.{Failure, Success, Try}
 
 /*
-  Immutable stack implementation, version 4
+  Immutable stack implementation, version 3
 
-  If we carefully look at the implementation in version 3 we can see little Stack-specific code.
-  What makes it Stack-specific is the IntStack which is just a specific kind of State.
+  I defined a case class Stack which encapsulates a stack function named run:
 
-  In version 4 (this impl) I abstracted away the IntStack to a general state S.
-  The object Stack keeps it name as it rally contains Stack-specific functions push, pop, etc.
-  I renamed case class Stack to State and gave it an additional type Parameter S (which was IntStack before).
-  This change propagates through the hole case class State
-  and the implicit Monad instance, which now becomes a def due to the new type parameter.
+      case class Stack[A](run: IntStack => (IntStack, A))
 
-  Client code remains unchanged as I defined a new type alias:
+  As before the wrapped 'run' function takes a stack and returns a Tuple2 with the new stack and the vlaue of type A.
+  Therefore the Stack case class is parameterized with type A.
+  The function 'runS' returns only the stack part of the Tuple2.
+  The function 'runA' returns only the value part of the Tuple2.
 
-      type Stack[A] = State[IntStack, A]
+  To make the stack monadic I additionally implemented map and flatMap.
+  'map' leaves the stack unchanged. It only transforms the value from A => B.
+  'flatMap' possibly manipulates the stack and the value, depending on the function passed to it.
 
-  which maps the type Stack[A] to State[IntStack, A]
-  and the new method:
+  Having map and flatMap in the Stack case class makes it easy to provide a Monad instance as an implicit val.
 
-      def Stack[A](run: IntStack => (IntStack, A)): State[IntStack, A] = State[IntStack, A](run)
-
-  which propagates the invocation of Stack(...) to the invokation of State.apply(...)
-
-  As said, these two additions allow me to treat the client code as before,
-  hiding that we indeed work with the more abstract State case class.
+  Now we can use the stack functions (push, pop etc) in monadic context, i.e.
+  we can pass the to flatMap or use them in a for-comprehension as demonstrated below.
  */
-object Stack5AbstractingState extends App {
+object Stack4Monad extends App {
 
   println("\n-----")
 
-  case class State[S, A](run: S => (S, A)) {
+  type IntStack = List[Int]
 
-    def runS: S => S = run(_)._1
+  case class Stack[A](run: IntStack => (IntStack, A)) {
 
-    def runA: S => A = run(_)._2
+    def runS: IntStack => IntStack = run(_)._1
 
-    // map doesn't manipulate the state, it just transforms the A value
-    def map[B](f: A => B): State[S, B] = State {
+    def runA: IntStack => A = run(_)._2
+
+    // map doesn't manipulate the stack, it just transforms the A value
+    def map[B](f: A => B): Stack[B] = Stack {
       s => {
         val (s1, a1) = run(s)
         (s1, f(a1))
       }
     }
 
-    def flatMap[B](f: A => State[S, B]): State[S, B] = State {
+    def flatMap[B](f: A => Stack[B]): Stack[B] = Stack {
       s => {
         val (s1, a1) = run(s)
         f(a1).run(s1)
@@ -61,24 +58,19 @@ object Stack5AbstractingState extends App {
     }
   }
 
-  // Monad instance for my State Monad
-  implicit def stateMonad[S]: Monad[State[S, ?]] = new Monad[State[S, ?]] {
+  // Monad instance for my Stack Monad
+  implicit val stackMonad: Monad[Stack] = new Monad[Stack] {
 
-    override def pure[A](x: A): State[S, A] =
-      State { s => (s, x) }
+    override def pure[A](x: A): Stack[A] =
+      Stack { s => (s, x) }
 
-    override def flatMap[A, B](fa: State[S, A])(f: A => State[S, B]): State[S, B] =
+    override def flatMap[A, B](fa: Stack[A])(f: A => Stack[B]): Stack[B] =
       fa flatMap f
 
-    override def tailRecM[A, B](a: A)(f: A => State[S, Either[A, B]]): State[S, B] =
+    override def tailRecM[A, B](a: A)(f: A => Stack[Either[A, B]]): Stack[B] =
       ???
   }
 
-
-  type IntStack = List[Int]
-  type Stack[A] = State[IntStack, A]
-
-  def Stack[A](run: IntStack => (IntStack, A)): State[IntStack, A] = State[IntStack, A](run)
 
   object Stack {
 
@@ -171,6 +163,7 @@ object Stack5AbstractingState extends App {
 
     assert(intStack == expectedStack && value == expectedValue)
   }
+
 
   println("-----")
 }
