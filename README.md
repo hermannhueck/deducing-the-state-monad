@@ -13,4 +13,4 @@ I delete my own implemention of State and import cats.data.State
 instead. The Stack client code works as before.
 
 A detailed description of each implementation step can be found
-in the comments of the respective source file.
+in the head comments of the respective source file.
