@@ -22,7 +22,7 @@ import scala.util.{Failure, Success, Try}
 
   With that I provide a semantically identical State Monad interface as Cats.
  */
-object Stack6StateObjectConvenienceFunctions extends App {
+object Stack6StateConvenienceFunctions extends App {
 
   println("\n-----")
 
