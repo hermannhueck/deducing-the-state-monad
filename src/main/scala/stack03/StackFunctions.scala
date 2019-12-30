@@ -8,7 +8,7 @@ package stack03
 import util._
 
 /*
-  Immutable stack implementation, version 2
+  Immutable stack implementation, using functions: List[Int] => (List[Int], A)
 
   The stack methods have been changed to functions.
   All functions abide by the same pattern:
@@ -17,38 +17,12 @@ import util._
   The type of the value might be different for every stack function.
 
   The type alias
-      type Stack[A] = IntStack => (IntStack, A)
+      type Stack[A] = List[Int] => (List[Int], A)
   is 'hiding' the fact that a function is returned.
  */
-object Stack3Functions extends App {
+object StackFunctions extends App {
 
   printStartLine()
-
-  type IntStack = List[Int]
-  type Stack[A] = IntStack => (IntStack, A)
-
-  object Stack {
-
-    val EmptyStack = List.empty[Int]
-
-    val init: Stack[Unit] =
-      s => (s, ())
-
-    val reset: Stack[Unit] =
-      _ => init(EmptyStack)
-
-    def push(v: Int): Stack[Unit] =
-      s => (v :: s, ())
-
-    val pop: Stack[Int] =
-      s => (s.tail, s.head)
-
-    val peek: Stack[Int] =
-      s => (s, s.head)
-
-    val view: Stack[IntStack] =
-      s => (s, s)
-  }
 
   import Stack._
 

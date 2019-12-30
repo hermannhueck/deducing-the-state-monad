@@ -1,4 +1,6 @@
-package stack06
+package stack07
+
+import cats.data.State
 
 object Stack {
 
@@ -23,7 +25,7 @@ object Stack {
   def pop: Stack[Int] = State { s =>
     val a1 = State.get[IntStack].map(_.head).runA(s)
     val s2 = State.modify[IntStack](_.tail).runS(s)
-    (s2, a1)
+    (s2.value, a1.value)
   }
 
   def peek: Stack[Int] = view.map(_.head)
