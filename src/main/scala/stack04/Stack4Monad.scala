@@ -3,7 +3,7 @@
   http://learnyouahaskell.com/for-a-few-monads-more#state
  */
 
-package stack
+package stack04
 
 import cats.Monad
 
