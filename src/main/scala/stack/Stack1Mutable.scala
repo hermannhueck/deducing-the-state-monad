@@ -5,6 +5,8 @@
 
 package stack
 
+import util._
+
 /*
   Mutable stack implementation
 
@@ -12,7 +14,7 @@ package stack
  */
 object Stack1Mutable extends App {
 
-  println("\n-----")
+  printStartLine()
 
   type IntStack = List[Int]
 
@@ -73,5 +75,5 @@ object Stack1Mutable extends App {
   println((v7, stack))
   assert(stack == List(3, 5, 8, 2, 1) && v7 == stack)
 
-  println("-----")
+  printEndLine()
 }

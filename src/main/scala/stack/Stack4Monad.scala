@@ -9,6 +9,8 @@ import cats.Monad
 
 import scala.util.{Failure, Success, Try}
 
+import util._
+
 /*
   Immutable stack implementation, version 3
 
@@ -32,7 +34,7 @@ import scala.util.{Failure, Success, Try}
  */
 object Stack4Monad extends App {
 
-  println("\n-----")
+  printStartLine()
 
   type IntStack = List[Int]
 
@@ -43,15 +45,15 @@ object Stack4Monad extends App {
     def runA: IntStack => A = run(_)._2
 
     // map doesn't manipulate the stack, it just transforms the A value
-    def map[B](f: A => B): Stack[B] = Stack {
-      s => {
+    def map[B](f: A => B): Stack[B] = Stack { s =>
+      {
         val (s1, a1) = run(s)
         (s1, f(a1))
       }
     }
 
-    def flatMap[B](f: A => Stack[B]): Stack[B] = Stack {
-      s => {
+    def flatMap[B](f: A => Stack[B]): Stack[B] = Stack { s =>
+      {
         val (s1, a1) = run(s)
         f(a1).run(s1)
       }
@@ -62,7 +64,9 @@ object Stack4Monad extends App {
   implicit val stackMonad: Monad[Stack] = new Monad[Stack] {
 
     override def pure[A](x: A): Stack[A] =
-      Stack { s => (s, x) }
+      Stack { s =>
+        (s, x)
+      }
 
     override def flatMap[A, B](fa: Stack[A])(f: A => Stack[B]): Stack[B] =
       fa flatMap f
@@ -71,41 +75,39 @@ object Stack4Monad extends App {
       ???
   }
 
-
   object Stack {
 
     val EmptyStack = List.empty[Int]
 
-    def init(s: IntStack): Stack[Unit] = Stack {
-      _ => (s, ())
+    def init(s: IntStack): Stack[Unit] = Stack { _ =>
+      (s, ())
     }
 
-    def reset: Stack[Unit] =  Stack {
-      _ => (EmptyStack, ())
+    def reset: Stack[Unit] = Stack { _ =>
+      (EmptyStack, ())
     }
 
-    def push(v: Int): Stack[Unit] = Stack {
-      s => (v :: s, ())
+    def push(v: Int): Stack[Unit] = Stack { s =>
+      (v :: s, ())
     }
 
-    def pop: Stack[Int] = Stack {
-      s => (s.tail, s.head)
+    def pop: Stack[Int] = Stack { s =>
+      (s.tail, s.head)
     }
 
-    def peek: Stack[Int] = Stack {
-      s => (s, s.head)
+    def peek: Stack[Int] = Stack { s =>
+      (s, s.head)
     }
 
-    def view: Stack[IntStack] = Stack {
-      s => (s, s)
+    def view: Stack[IntStack] = Stack { s =>
+      (s, s)
     }
   }
-
 
   import Stack._
 
   val stack1: Stack[Int] = for {
-    _ <- init(List(5,8,2,1))
+    _ <- init(List(5, 8, 2, 1))
     _ <- push(3)
     _ <- push(5)
     _ <- push(7)
@@ -145,16 +147,20 @@ object Stack4Monad extends App {
           println(s"Got NoSuchElementException as expected: ${e.getMessage}")
           assert(true)
         case e: UnsupportedOperationException =>
-          println(s"Got UnsupportedOperationException as expected: ${e.getMessage}")
+          println(
+            s"Got UnsupportedOperationException as expected: ${e.getMessage}"
+          )
           assert(true)
         case e =>
           assert(assertion = false, s"Unexpected Exception: $e")
       }
   }
 
-
-
-  private def checkResult(tuple2: (IntStack, Int), expectedStack: IntStack, expectedValue: Int): Unit = {
+  private def checkResult(
+      tuple2: (IntStack, Int),
+      expectedStack: IntStack,
+      expectedValue: Int
+  ): Unit = {
 
     val (intStack, value) = tuple2
 
@@ -164,6 +170,5 @@ object Stack4Monad extends App {
     assert(intStack == expectedStack && value == expectedValue)
   }
 
-
-  println("-----")
+  printEndLine()
 }

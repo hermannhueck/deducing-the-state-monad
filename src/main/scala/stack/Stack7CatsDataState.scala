@@ -11,6 +11,8 @@ import cats.data.State
 
 import scala.util.{Failure, Success, Try}
 
+import util._
+
 /*
   Immutable stack implementation, version 6
 
@@ -27,12 +29,13 @@ import scala.util.{Failure, Success, Try}
  */
 object Stack7CatsDataState extends App {
 
-  println("\n-----")
+  printStartLine()
 
   type IntStack = List[Int]
   type Stack[A] = State[IntStack, A]
 
-  def Stack[A](run: IntStack => (IntStack, A)): State[IntStack, A] = State[IntStack, A](run)
+  def Stack[A](run: IntStack => (IntStack, A)): State[IntStack, A] =
+    State[IntStack, A](run)
 
   object Stack {
 
@@ -55,11 +58,10 @@ object Stack7CatsDataState extends App {
     def view: Stack[IntStack] = State.get[IntStack]
   }
 
-
   import Stack._
 
   val stack1: Stack[Int] = for {
-    _ <- init(List(5,8,2,1))
+    _ <- init(List(5, 8, 2, 1))
     _ <- push(3)
     _ <- push(5)
     _ <- push(7)
@@ -99,16 +101,20 @@ object Stack7CatsDataState extends App {
           println(s"Got NoSuchElementException as expected: ${e.getMessage}")
           assert(true)
         case e: UnsupportedOperationException =>
-          println(s"Got UnsupportedOperationException as expected: ${e.getMessage}")
+          println(
+            s"Got UnsupportedOperationException as expected: ${e.getMessage}"
+          )
           assert(true)
         case e =>
           assert(assertion = false, s"Unexpected Exception: $e")
       }
   }
 
-
-
-  private def checkResult(tuple2: (IntStack, Int), expectedStack: IntStack, expectedValue: Int): Unit = {
+  private def checkResult(
+      tuple2: (IntStack, Int),
+      expectedStack: IntStack,
+      expectedValue: Int
+  ): Unit = {
 
     val (intStack, value) = tuple2
 
@@ -118,6 +124,5 @@ object Stack7CatsDataState extends App {
     assert(intStack == expectedStack && value == expectedValue)
   }
 
-
-  println("-----")
+  printEndLine()
 }
